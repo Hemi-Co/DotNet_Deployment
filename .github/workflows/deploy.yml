@@ -1,0 +1,27 @@
+name: MVC Dev Deploy
+
+on:
+  push:
+    branches: [mvc-dev]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: dotnet publish -c Release -o publish
+
+      - name: Deploy Step (placeholder)
+        run: echo "Deploy to IIS or server here"
