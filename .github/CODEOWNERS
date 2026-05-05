@@ -1,9 +1,3 @@
-# CI/CD pipelines
 /.github/workflows/* @abdullah202091
-
-# Deployment scripts
-deploy/** @abdullah202091
-
-# Infrastructure files
 *.yml @abdullah202091
 *.yaml @abdullah202091
