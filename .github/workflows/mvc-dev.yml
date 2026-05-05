@@ -1,8 +1,8 @@
-name: .NET MVC Deploy
+name: Build and Test
 
 on:
-  push:
-    branches: [mvc-dev]
+  pull_request:
+    branches: [mvc-dev, main]
 
 permissions:
   contents: read
@@ -26,5 +26,5 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
 
-      - name: Publish
-        run: dotnet publish -c Release -o publish
+      - name: Test
+        run: dotnet test --no-build
