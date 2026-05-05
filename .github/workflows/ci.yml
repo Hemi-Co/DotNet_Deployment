@@ -1,8 +1,10 @@
-name: Build and Test
+name: .NET CI-CD Pipeline
 
 on:
   pull_request:
     branches: [mvc-dev, main]
+  push:
+    branches: [mvc-dev]
 
 permissions:
   contents: read
@@ -12,7 +14,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -20,11 +22,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore
+      - name: Restore Dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release
+      - name: Build Project
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test --no-build
+      - name: Run Tests
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish -c Release -o publish
