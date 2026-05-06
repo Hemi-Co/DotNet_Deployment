@@ -1,0 +1,27 @@
+name: Test Workflow Run
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print basic info
+        run: |
+          echo "✅ Workflow is running!"
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
+
+      - name: List files
+        run: |
+          echo "📂 Repo files:"
+          ls -la
+
+      - name: Success message
+        run: echo "🎉 CI/CD test completed successfully!"
