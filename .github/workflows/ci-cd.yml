@@ -19,7 +19,7 @@ jobs:
       github.ref == 'refs/heads/development' ||
       (github.event_name == 'pull_request' &&
        (github.base_ref == 'main' || github.base_ref == 'deploy') &&
-       contains(fromJson('["hemi426627","your-username"]'), github.actor))
+       contains(fromJson('["hemi426627"]'), github.actor))
 
     steps:
       - name: Checkout Code
