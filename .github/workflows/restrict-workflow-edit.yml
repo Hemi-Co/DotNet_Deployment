@@ -2,11 +2,9 @@ name: Restrict Workflow File Changes
 
 on:
   pull_request:
-    branches:
-      - "**"
+    branches: ["**"]
   push:
-    branches:
-      - "**"
+    branches: ["**"]
 
 jobs:
   restrict-workflow-edits:
@@ -15,25 +13,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 🔥 REQUIRED
 
       - name: Get changed files
         id: changed-files
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             git fetch origin ${{ github.base_ref }}
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+            git diff --name-only origin/${{ github.base_ref }}...HEAD > files.txt
           else
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+            git diff --name-only ${{ github.event.before }} ${{ github.sha }} > files.txt
           fi
 
-          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "Changed files:"
+          cat files.txt
 
       - name: Restrict workflow file edits
         run: |
-          echo "Changed files:"
-          echo "${{ steps.changed-files.outputs.files }}"
-
-          # ✅ Allowed users (EDIT THIS)
+          # ✅ Allowed users
           ALLOWED_USERS=("hemi42662711")
 
           IS_ALLOWED=false
@@ -43,7 +41,7 @@ jobs:
             fi
           done
 
-          if echo "${{ steps.changed-files.outputs.files }}" | grep -E "^\.github/workflows/.*\.yml$"; then
+          if grep -E "^\.github/workflows/.*\.(yml|yaml)$" files.txt; then
             if [ "$IS_ALLOWED" = false ]; then
               echo "❌ ERROR: ${{ github.actor }} is NOT allowed to modify workflow files!"
               exit 1
