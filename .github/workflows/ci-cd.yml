@@ -1,10 +1,11 @@
 name: .NET CI-CD Pipeline
 
 on:
-  pull_request:
-    branches: [mvc-dev, main]
   push:
-    branches: [mvc-dev]
+    branches: [development]
+
+  pull_request:
+    branches: [main, deploy]
 
 permissions:
   contents: read
@@ -12,6 +13,13 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+
+    # 🚨 Restrict who can trigger for protected branches
+    if: |
+      github.ref == 'refs/heads/development' ||
+      (github.event_name == 'pull_request' &&
+       (github.base_ref == 'main' || github.base_ref == 'deploy') &&
+       contains(fromJson('["hemi426627","your-username"]'), github.actor))
 
     steps:
       - name: Checkout Code
