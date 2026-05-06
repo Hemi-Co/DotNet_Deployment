@@ -34,7 +34,7 @@ jobs:
           echo "${{ steps.changed-files.outputs.files }}"
 
           # ✅ Allowed users (EDIT THIS)
-          ALLOWED_USERS=("hemi42662711")
+          ALLOWED_USERS=("hemi426627")
 
           IS_ALLOWED=false
           for USER in "${ALLOWED_USERS[@]}"; do
