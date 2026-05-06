@@ -1,0 +1,55 @@
+name: Restrict Workflow File Changes
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - "**"
+
+jobs:
+  restrict-workflow-edits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }}
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
+
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Restrict workflow file edits
+        run: |
+          echo "Changed files:"
+          echo "${{ steps.changed-files.outputs.files }}"
+
+          # ✅ Allowed users (EDIT THIS)
+          ALLOWED_USERS=("hemi42662711")
+
+          IS_ALLOWED=false
+          for USER in "${ALLOWED_USERS[@]}"; do
+            if [ "$USER" = "${{ github.actor }}" ]; then
+              IS_ALLOWED=true
+            fi
+          done
+
+          if echo "${{ steps.changed-files.outputs.files }}" | grep -E "^\.github/workflows/.*\.yml$"; then
+            if [ "$IS_ALLOWED" = false ]; then
+              echo "❌ ERROR: ${{ github.actor }} is NOT allowed to modify workflow files!"
+              exit 1
+            else
+              echo "✅ Authorized user modifying workflow files"
+            fi
+          else
+            echo "✅ No restricted files changed"
+          fi
