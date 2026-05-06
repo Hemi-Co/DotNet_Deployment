@@ -1,0 +1,43 @@
+name: .NET CI-CD Pipeline
+
+on:
+  push:
+    branches: [development]
+
+  pull_request:
+    branches: [main, deploy]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    # 🚨 Restrict who can trigger for protected branches
+    if: |
+      github.ref == 'refs/heads/development' ||
+      (github.event_name == 'pull_request' &&
+       (github.base_ref == 'main' || github.base_ref == 'deploy') &&
+       contains(fromJson('["hemi426627"]'), github.actor))
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build Project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Tests
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish -c Release -o publish
